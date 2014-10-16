@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DxLibDLL;
+using System.Diagnostics;
 
 namespace MiriShiraIgo1
 {
@@ -60,8 +61,14 @@ namespace MiriShiraIgo1
                     int x = GetClickCoordinate().Item1;
                     int y = GetClickCoordinate().Item2;
                     PutStone(x, y);
+                    // DEBUG
+                    Debug.WriteLine("---placed---");
+                    Debug.WriteLine(placedStones.ToString());
                     // 石が取れるかの判定
                     Judge(0);
+                    // DEBUG
+                    Debug.WriteLine("---dead---");
+                    Debug.WriteLine(deadStones.ToString());
                 }
 
                 // 石の描画
@@ -263,12 +270,6 @@ namespace MiriShiraIgo1
         /// <param name="turn">偶数か奇数か</param>
         private void Judge(int turn)
         {
-            //DEBUG
-            System.Diagnostics.Debug.WriteLine("DeadStones---");
-            foreach (var item in deadStones.getStones())
-            {
-                System.Diagnostics.Debug.WriteLine(item.x.ToString() + "," + item.y.ToString() + ":" + item.turn.ToString());
-            }
             foreach (var stone in placedStones.getStones().Except(deadStones.getStones()))
             {
                 if (!StoneAlive(stone))

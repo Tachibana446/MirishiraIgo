@@ -86,5 +86,15 @@ namespace MiriShiraIgo1
             }
             return null;
         }
+
+        public String ToString()
+        {
+            String str = "";
+            foreach (var stone in stones)
+            {
+                str += stone.ToString() + "\n";
+            }
+            return str;
+        }
     }
 }

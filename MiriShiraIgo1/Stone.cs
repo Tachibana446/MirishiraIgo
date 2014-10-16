@@ -16,11 +16,16 @@ namespace MiriShiraIgo1
         public int y;
         public int turn;
 
-        public Stone(int x, int y , int turn)
+        public Stone(int x, int y, int turn)
         {
             this.x = x;
             this.y = y;
             this.turn = turn;
+        }
+
+        public String ToString()
+        {
+            return "(" + x.ToString() + "," + y.ToString() + ":" + turn.ToString() + ")";
         }
 
     }
