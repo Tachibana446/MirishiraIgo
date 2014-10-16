@@ -13,10 +13,10 @@ namespace MiriShiraIgo1
         static int cellSize = boardSize / 16;
         // クリックの履歴
         static bool click = false;
-        // 石をおいた場所の記録
-        static List<Stone> stones = new List<Stone>();
+        // 置かれた石たち
+        static StoneBox placedStones = new StoneBox();
         // 取られた石たち
-        static List<Stone> death = new List<Stone>();
+        static StoneBox deadStones = new StoneBox();
         // ターン数のカウント
         static int turnCount = 0;
 
@@ -88,7 +88,7 @@ namespace MiriShiraIgo1
         // 石を置く処理
         static bool PutStones()
         {
-            
+
             if ((DX.GetMouseInput() & DX.MOUSE_INPUT_LEFT) != 0 && click == false)
             {
                 // ターン数を進める
@@ -100,14 +100,14 @@ namespace MiriShiraIgo1
                 // そいつがクリックしたかった本来の場所を推測
                 int tx = (x + cellSize / 2) / cellSize;
                 int ty = (y + cellSize / 2) / cellSize;
-                // そこに石を置いたことにする
-                stones.Add(new Stone(tx, ty, turnCount % 2));
+                // そこに石を置く
+                placedStones.Add(new Stone(tx, ty, turnCount % 2));
 
                 //DEBUG
-                System.Diagnostics.Debug.WriteLine(turnCount.ToString()+"%2="+(turnCount % 2).ToString());
+                System.Diagnostics.Debug.WriteLine(turnCount.ToString() + "%2=" + (turnCount % 2).ToString());
 
                 // DEBUG
-                foreach (var stone in stones)
+                foreach (var stone in placedStones.getStones())
                 {
                     System.Diagnostics.Debug.WriteLine(stone.x.ToString() + "," + stone.y.ToString() + ":" + stone.turn.ToString());
                 }
@@ -127,14 +127,14 @@ namespace MiriShiraIgo1
         // 置かれた石の描画
         static void DrawStones()
         {
-            foreach (var stone in stones)
+            foreach (var stone in placedStones.getStones())
             {
 
                 // 死んでいたら描画しない
-                if (death.IndexOf(stone) == -1)
+                if (deadStones.hasStone(stone))
                 {
                     // あとは先攻後攻で色を変えて描画
-                    if (stone.turn % 2 == 0)
+                    if (stone.turn == 1)
                     {
                         DX.DrawCircle(stone.x * cellSize, stone.y * cellSize, 5, DX.GetColor(0, 0, 0), DX.TRUE);
                     }
@@ -167,7 +167,7 @@ namespace MiriShiraIgo1
             // 周囲の調査
             if (up)
             {
-                Stone upStone = GetStoneFromCoordinate(x, y - 1);
+                Stone upStone = placedStones.getStoneFromCoordinate(x, y - 1);
                 // 上に石がなければ生きてる
                 if (upStone == null)
                 {
@@ -187,7 +187,7 @@ namespace MiriShiraIgo1
             }
             if (down)
             {
-                Stone downStone = GetStoneFromCoordinate(x, y + 1);
+                Stone downStone = placedStones.getStoneFromCoordinate(x, y + 1);
                 if (downStone != null)
                 {
                     if (downStone.turn == stone.turn)
@@ -205,7 +205,7 @@ namespace MiriShiraIgo1
             }
             if (left)
             {
-                Stone leftStone = GetStoneFromCoordinate(x - 1, y);
+                Stone leftStone = placedStones.getStoneFromCoordinate(x - 1, y);
                 if (leftStone != null)
                 {
                     if (leftStone.turn == stone.turn)
@@ -223,7 +223,7 @@ namespace MiriShiraIgo1
             }
             if (right)
             {
-                Stone rightStone = GetStoneFromCoordinate(x + 1, y);
+                Stone rightStone = placedStones.getStoneFromCoordinate(x + 1, y);
                 if (rightStone != null)
                 {
                     if (rightStone.turn == stone.turn)
@@ -250,12 +250,12 @@ namespace MiriShiraIgo1
         /// <param name="turn">偶数か奇数か</param>
         static void Judge(int turn)
         {
-            foreach (var stone in stones.Except(death))
+            foreach (var stone in placedStones.Except(deadStones))
             {
                 if (!StoneAlive(stone))
                 {
                     // 死亡者リストに登録
-                    death.Add(stone);
+                    deadStones.Add(stone);
                     // 盤面をクリーンにする
                     DrawBoard();
                     System.Diagnostics.Debug.WriteLine("DEAD!" + stone.x.ToString() + "," + stone.y.ToString());
@@ -263,34 +263,6 @@ namespace MiriShiraIgo1
             }
         }
 
-        /// <summary>
-        /// 座標にある石のインデックスを返す
-        /// 後に別なクラスに分けること
-        /// </summary>
-        /// <param name="x"></param>
-        /// <param name="y"></param>
-        /// <returns></returns>
-        static int GetIndexFromCoordinate(int x, int y)
-        {
-            foreach (var stone in stones)
-            {
-                if (stone.x == x && stone.y == y)
-                {
-                    return stones.IndexOf(stone);
-                }
-            }
-            return -1;
-        }
-        static Stone GetStoneFromCoordinate(int x, int y)
-        {
-            foreach (var stone in stones)
-            {
-                if (stone.x == x && stone.y == y)
-                {
-                    return stone;
-                }
-            }
-            return null;
-        }
+
     }
 }
