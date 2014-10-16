@@ -57,9 +57,12 @@ namespace MiriShiraIgo1
                 {
                     // ターンを進め
                     turnCount += 1;
-                    // 石を置く
+                    // 石が置ければ石を置く
                     var xy = GetClickCoordinate();
-                    PutStone(xy);
+                    if (CanPutStone(xy))
+                    {
+                        PutStone(xy);
+                    }
                     // DEBUG
                     Debug.WriteLine("---placed---");
                     Debug.WriteLine(placedStones.ToString());
@@ -134,6 +137,30 @@ namespace MiriShiraIgo1
 
             return new Tuple<int, int>(tx, ty);
         }
+        /// <summary>
+        /// 引数の座標に石が置けるかどうか判定する
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <returns></returns>
+        private bool CanPutStone(int x,int y){
+            var alives = new StoneBox(placedStones.Except(deadStones));
+            if (alives.getStoneFromCoordinate(x, y) != null)
+            {
+                return false;
+            }
+            return true;
+        }
+        /// <summary>
+        /// 引数の座標に石が置けるか判定する
+        /// </summary>
+        /// <param name="xy">Tuple(x,y)</param>
+        /// <returns></returns>
+        private bool CanPutStone(Tuple<int, int> xy)
+        {
+            return CanPutStone(xy.Item1, xy.Item2);
+        }
+
         /// <summary>
         /// 指定の座標に石を置く
         /// </summary>
