@@ -180,6 +180,8 @@ namespace MiriShiraIgo1
         {
             int x = stone.x;
             int y = stone.y;
+            // 生きてる石
+            StoneBox alives = new StoneBox(placedStones.Except(deadStones));
 
             up &= !(x < 0);
             down &= !(x > 16);
@@ -188,7 +190,7 @@ namespace MiriShiraIgo1
             // 周囲の調査
             if (up)
             {
-                Stone upStone = placedStones.getStoneFromCoordinate(x, y - 1);
+                Stone upStone = alives.getStoneFromCoordinate(x, y - 1);
                 // 上に石がなければ生きてる
                 if (upStone == null)
                 {
@@ -208,7 +210,7 @@ namespace MiriShiraIgo1
             }
             if (down)
             {
-                Stone downStone = placedStones.getStoneFromCoordinate(x, y + 1);
+                Stone downStone = alives.getStoneFromCoordinate(x, y + 1);
                 if (downStone != null)
                 {
                     if (downStone.turn == stone.turn)
@@ -226,7 +228,7 @@ namespace MiriShiraIgo1
             }
             if (left)
             {
-                Stone leftStone = placedStones.getStoneFromCoordinate(x - 1, y);
+                Stone leftStone = alives.getStoneFromCoordinate(x - 1, y);
                 if (leftStone != null)
                 {
                     if (leftStone.turn == stone.turn)
@@ -244,7 +246,7 @@ namespace MiriShiraIgo1
             }
             if (right)
             {
-                Stone rightStone = placedStones.getStoneFromCoordinate(x + 1, y);
+                Stone rightStone = alives.getStoneFromCoordinate(x + 1, y);
                 if (rightStone != null)
                 {
                     if (rightStone.turn == stone.turn)
@@ -271,7 +273,13 @@ namespace MiriShiraIgo1
         /// <param name="turn">偶数か奇数か</param>
         private void Judge(int turn)
         {
-            foreach (var stone in placedStones.getStones().Except(deadStones.getStones()))
+            // 盤面に残っている石
+            StoneBox alives = new StoneBox(placedStones.Except(deadStones));
+            // DEBUG
+            Debug.WriteLine("---alive---");
+            Debug.WriteLine(alives.ToString());
+            Debug.WriteLine("-----------");
+            foreach (var stone in alives.getStones())
             {
                 if (!StoneAlive(stone))
                 {

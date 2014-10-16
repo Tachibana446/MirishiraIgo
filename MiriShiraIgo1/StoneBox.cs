@@ -15,6 +15,11 @@ namespace MiriShiraIgo1
             stones = new List<Stone>();
         }
 
+        public StoneBox(List<Stone> list)
+        {
+            stones = list;
+        }
+
         public List<Stone> getStones()
         {
             return stones;
