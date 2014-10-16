@@ -8,7 +8,7 @@ namespace MiriShiraIgo1
 {
     class StoneBox
     {
-        private static List<Stone> stones;
+        private List<Stone> stones;
 
         public StoneBox()
         {
@@ -32,7 +32,10 @@ namespace MiriShiraIgo1
         /// <returns></returns>
         public List<Stone> Except(StoneBox stonebox)
         {
-            return new List<Stone>(stones.Except(stonebox.getStones()));
+            var result = new List<Stone>();
+            result = stones.Except<Stone>(stonebox.getStones()).ToList<Stone>();
+            return result;
+
         }
 
         /// <summary>

@@ -42,6 +42,7 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Game.cs" />
     <Compile Include="MiriShiraIgo1.cs" />
     <Compile Include="Stone.cs" />
     <Compile Include="StoneBox.cs" />
