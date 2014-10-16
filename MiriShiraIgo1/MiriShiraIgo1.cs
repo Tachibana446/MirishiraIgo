@@ -44,19 +44,8 @@ namespace MiriShiraIgo1
                 PutStones();
 
                 // 石の描画
-                bool turn = true;
-                foreach (var coordinate in stones)
-                {
-
-                    if (turn)
-                    {
-                        DX.DrawCircle(coordinate.Item1*cellSize, coordinate.Item2*cellSize, 5, DX.GetColor(0, 0, 0),DX.TRUE);
-                    }else
-                    {
-                        DX.DrawCircle(coordinate.Item1*cellSize, coordinate.Item2*cellSize, 5, DX.GetColor(255, 255, 255),DX.TRUE);
-                    }
-                    turn = !turn;
-                }
+                DrawStones();
+                
 
                 // 裏画面の反転
                 DX.ScreenFlip();
@@ -112,6 +101,25 @@ namespace MiriShiraIgo1
                 click = false;
             }
 
+        }
+
+        // 置かれた石の描画
+        static void DrawStones()
+        {
+            bool turn = true;
+            foreach (var coordinate in stones)
+            {
+
+                if (turn)
+                {
+                    DX.DrawCircle(coordinate.Item1 * cellSize, coordinate.Item2 * cellSize, 5, DX.GetColor(0, 0, 0), DX.TRUE);
+                }
+                else
+                {
+                    DX.DrawCircle(coordinate.Item1 * cellSize, coordinate.Item2 * cellSize, 5, DX.GetColor(255, 255, 255), DX.TRUE);
+                }
+                turn = !turn;
+            }
         }
     }
 }
