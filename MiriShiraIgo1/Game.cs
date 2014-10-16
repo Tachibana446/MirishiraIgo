@@ -69,6 +69,7 @@ namespace MiriShiraIgo1
                     // DEBUG
                     Debug.WriteLine("---dead---");
                     Debug.WriteLine(deadStones.ToString());
+                    Debug.WriteLine("----------");
                 }
 
                 // 石の描画
@@ -278,7 +279,7 @@ namespace MiriShiraIgo1
                     deadStones.Add(stone);
                     // 盤面をクリーンにする
                     DrawBoard();
-                    System.Diagnostics.Debug.WriteLine("DEAD!" + stone.x.ToString() + "," + stone.y.ToString());
+                    Debug.WriteLine("<<DEAD!" + stone.x.ToString() + "," + stone.y.ToString() + ">>");
                 }
             }
         }
