@@ -42,6 +42,7 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AI-Rand.cs" />
     <Compile Include="Game.cs" />
     <Compile Include="MiriShiraIgo1.cs" />
     <Compile Include="Playable.cs" />

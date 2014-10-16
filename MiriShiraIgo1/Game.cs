@@ -27,7 +27,7 @@ namespace MiriShiraIgo1
         {
             turnCount = 0;
             players.Add(new Player("ore"));
-            players.Add(new Player("omae"));
+            players.Add(new AI_Rand());
         }
 
         public void Main()
