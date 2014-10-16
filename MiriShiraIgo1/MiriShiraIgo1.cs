@@ -14,9 +14,11 @@ namespace MiriShiraIgo1
         // クリックの履歴
         static bool click = false;
         // 石をおいた場所の記録
-        static List<Tuple<int, int>> stones = new List<Tuple<int, int>>();
+        static List<Stone> stones = new List<Stone>();
         // 取られた石たち
-        static List<Tuple<int, int>> death = new List<Tuple<int, int>>();
+        static List<Stone> death = new List<Stone>();
+        // ターン数のカウント
+        static int turnCount = 0;
 
         static void Main(String[] args)
         {
@@ -56,7 +58,6 @@ namespace MiriShiraIgo1
                 // 石の描画
                 DrawStones();
 
-
                 // 裏画面の反転
                 DX.ScreenFlip();
             }
@@ -87,8 +88,12 @@ namespace MiriShiraIgo1
         // 石を置く処理
         static bool PutStones()
         {
+            
             if ((DX.GetMouseInput() & DX.MOUSE_INPUT_LEFT) != 0 && click == false)
             {
+                // ターン数を進める
+                turnCount += 1;
+
                 click = true;
                 int x, y;
                 DX.GetMousePoint(out x, out y);
@@ -96,12 +101,15 @@ namespace MiriShiraIgo1
                 int tx = (x + cellSize / 2) / cellSize;
                 int ty = (y + cellSize / 2) / cellSize;
                 // そこに石を置いたことにする
-                stones.Add(new Tuple<int, int>(tx, ty));
+                stones.Add(new Stone(tx, ty, turnCount % 2));
+
+                //DEBUG
+                System.Diagnostics.Debug.WriteLine(turnCount.ToString()+"%2="+(turnCount % 2).ToString());
 
                 // DEBUG
-                foreach (var item in stones)
+                foreach (var stone in stones)
                 {
-                    System.Diagnostics.Debug.WriteLine(item.Item1.ToString() + "," + item.Item2.ToString());
+                    System.Diagnostics.Debug.WriteLine(stone.x.ToString() + "," + stone.y.ToString() + ":" + stone.turn.ToString());
                 }
                 return true;
 
@@ -119,24 +127,22 @@ namespace MiriShiraIgo1
         // 置かれた石の描画
         static void DrawStones()
         {
-            bool turn = true;
-            foreach (var coordinate in stones)
+            foreach (var stone in stones)
             {
 
                 // 死んでいたら描画しない
-                if (death.IndexOf(coordinate) == -1)
+                if (death.IndexOf(stone) == -1)
                 {
                     // あとは先攻後攻で色を変えて描画
-                    if (turn)
+                    if (stone.turn % 2 == 0)
                     {
-                        DX.DrawCircle(coordinate.Item1 * cellSize, coordinate.Item2 * cellSize, 5, DX.GetColor(0, 0, 0), DX.TRUE);
+                        DX.DrawCircle(stone.x * cellSize, stone.y * cellSize, 5, DX.GetColor(0, 0, 0), DX.TRUE);
                     }
                     else
                     {
-                        DX.DrawCircle(coordinate.Item1 * cellSize, coordinate.Item2 * cellSize, 5, DX.GetColor(255, 255, 255), DX.TRUE);
+                        DX.DrawCircle(stone.x * cellSize, stone.y * cellSize, 5, DX.GetColor(255, 255, 255), DX.TRUE);
                     }
                 }
-                turn = !turn;
             }
         }
 
@@ -149,10 +155,10 @@ namespace MiriShiraIgo1
         /// <param name="left">左に石があるか</param>
         /// <param name="right">右に石があるか</param>
         /// <returns></returns>
-        static bool StoneAlive(Tuple<int, int> stone, bool up = true, bool down = true, bool left = true, bool right = true)
+        static bool StoneAlive(Stone stone, bool up = true, bool down = true, bool left = true, bool right = true)
         {
-            int x = stone.Item1;
-            int y = stone.Item2;
+            int x = stone.x;
+            int y = stone.y;
 
             up &= !(x < 0);
             down &= !(x > 16);
@@ -161,17 +167,16 @@ namespace MiriShiraIgo1
             // 周囲の調査
             if (up)
             {
-                Tuple<int, int> upStone = new Tuple<int, int>(x, y - 1);
-                int index = stones.IndexOf(upStone);
+                Stone upStone = GetStoneFromCoordinate(x, y - 1);
                 // 上に石がなければ生きてる
-                if (index == -1)
+                if (upStone == null)
                 {
                     return true;
                 }
                 else
                 {
                     // 隣の石が同じ色ならそいつも調査
-                    if (index % 2 == stones.IndexOf(stone) % 2)
+                    if (upStone.turn == stone.turn)
                     {
                         if (StoneAlive(upStone, true, false, true, true))
                         {
@@ -182,11 +187,10 @@ namespace MiriShiraIgo1
             }
             if (down)
             {
-                Tuple<int, int> downStone = new Tuple<int, int>(x, y + 1);
-                int index = stones.IndexOf(downStone);
-                if (index != -1)
+                Stone downStone = GetStoneFromCoordinate(x, y + 1);
+                if (downStone != null)
                 {
-                    if (index % 2 == stones.IndexOf(stone) % 2)
+                    if (downStone.turn == stone.turn)
                     {
                         if (StoneAlive(downStone, false, true, true, true))
                         {
@@ -201,11 +205,10 @@ namespace MiriShiraIgo1
             }
             if (left)
             {
-                Tuple<int, int> leftStone = new Tuple<int, int>(x - 1, y);
-                int index = stones.IndexOf(leftStone);
-                if (index != -1)
+                Stone leftStone = GetStoneFromCoordinate(x - 1, y);
+                if (leftStone != null)
                 {
-                    if (index % 2 == stones.IndexOf(stone) % 2)
+                    if (leftStone.turn == stone.turn)
                     {
                         if (StoneAlive(leftStone, true, true, true, false))
                         {
@@ -220,11 +223,10 @@ namespace MiriShiraIgo1
             }
             if (right)
             {
-                Tuple<int, int> rightStone = new Tuple<int, int>(x + 1, y);
-                int index = stones.IndexOf(rightStone);
-                if (index != -1)
+                Stone rightStone = GetStoneFromCoordinate(x + 1, y);
+                if (rightStone != null)
                 {
-                    if (index % 2 == stones.IndexOf(stone) % 2)
+                    if (rightStone.turn == stone.turn)
                     {
                         if (StoneAlive(rightStone, true, true, false, true))
                         {
@@ -242,6 +244,8 @@ namespace MiriShiraIgo1
 
         /// <summary>
         /// 囲まれた石を取る
+        /// どちらのターンによるかで競合した時の優先度が決まる
+        /// ただしその部分はまだない
         /// </summary>
         /// <param name="turn">偶数か奇数か</param>
         static void Judge(int turn)
@@ -254,9 +258,39 @@ namespace MiriShiraIgo1
                     death.Add(stone);
                     // 盤面をクリーンにする
                     DrawBoard();
-                    System.Diagnostics.Debug.WriteLine("DEAD!" + stone.Item1.ToString() + "," + stone.Item2.ToString());
+                    System.Diagnostics.Debug.WriteLine("DEAD!" + stone.x.ToString() + "," + stone.y.ToString());
                 }
             }
+        }
+
+        /// <summary>
+        /// 座標にある石のインデックスを返す
+        /// 後に別なクラスに分けること
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <returns></returns>
+        static int GetIndexFromCoordinate(int x, int y)
+        {
+            foreach (var stone in stones)
+            {
+                if (stone.x == x && stone.y == y)
+                {
+                    return stones.IndexOf(stone);
+                }
+            }
+            return -1;
+        }
+        static Stone GetStoneFromCoordinate(int x, int y)
+        {
+            foreach (var stone in stones)
+            {
+                if (stone.x == x && stone.y == y)
+                {
+                    return stone;
+                }
+            }
+            return null;
         }
     }
 }
