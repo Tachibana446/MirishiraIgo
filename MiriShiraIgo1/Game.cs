@@ -51,17 +51,19 @@ namespace MiriShiraIgo1
 
                 // 主処理
 
-                // 石を置く
+                // クリックされたら
                 if (IsLeftClick())
                 {
+                    // ターンを進め
+                    turnCount += 1;
+                    // 石を置く
                     int x = GetClickCoordinate().Item1;
                     int y = GetClickCoordinate().Item2;
-                    PutStone(x,y);
+                    PutStone(x, y);
                     // 石が取れるかの判定
                     Judge(0);
                 }
 
-                // 左クリックしたかどうか
                 // 石の描画
                 DrawStones();
 
@@ -98,14 +100,32 @@ namespace MiriShiraIgo1
         /// <returns></returns>
         private bool IsLeftClick()
         {
-            return true;
+            // 左クリックの入力があり、前回の入力がなければクリックと判断
+            if ((DX.GetMouseInput() & DX.MOUSE_INPUT_LEFT) != 0 && click == false)
+            {
+                click = true;
+                return true;
+            }
+            // 左クリックの入力がなく、前回の入力があればクリックを終えたと判断
+            if ((DX.GetMouseInput() & DX.MOUSE_INPUT_LEFT) == 0 && click == true)
+            {
+                click = false;
+            }
+            return false;
         }
         /// <summary>
         /// クリックした地点の座標を返す
         /// </summary>
-        private Tuple<int,int> GetClickCoordinate()
+        /// <returns>Tuple(x,y)</returns>
+        private Tuple<int, int> GetClickCoordinate()
         {
-            return new Tuple<int, int>(0, 0);
+            int x, y;
+            DX.GetMousePoint(out x, out y);
+            // クリックされた位置から本来置きたかった点を推測
+            int tx = (x + cellSize / 2) / cellSize;
+            int ty = (y + cellSize / 2) / cellSize;
+
+            return new Tuple<int, int>(tx, ty);
         }
         /// <summary>
         /// 指定の座標に石を置く
@@ -114,47 +134,7 @@ namespace MiriShiraIgo1
         /// <param name="y"></param>
         private void PutStone(int x, int y)
         {
-
-        }
-
-
-        // 石を置く処理
-        private bool PutStones()
-        {
-
-            if ((DX.GetMouseInput() & DX.MOUSE_INPUT_LEFT) != 0 && click == false)
-            {
-                // ターン数を進める
-                turnCount += 1;
-
-                click = true;
-                int x, y;
-                DX.GetMousePoint(out x, out y);
-                // そいつがクリックしたかった本来の場所を推測
-                int tx = (x + cellSize / 2) / cellSize;
-                int ty = (y + cellSize / 2) / cellSize;
-                // そこに石を置く
-                placedStones.Add(new Stone(tx, ty, turnCount % 2));
-
-                //DEBUG
-                System.Diagnostics.Debug.WriteLine(turnCount.ToString() + "%2=" + (turnCount % 2).ToString());
-
-                // DEBUG
-                foreach (var stone in placedStones.getStones())
-                {
-                    System.Diagnostics.Debug.WriteLine(stone.x.ToString() + "," + stone.y.ToString() + ":" + stone.turn.ToString());
-                }
-                return true;
-
-            }
-            if ((DX.GetMouseInput() & DX.MOUSE_INPUT_LEFT) == 0 && click)
-            {
-                System.Diagnostics.Debug.WriteLine("------");
-                click = false;
-                return false;
-            }
-            return false;
-
+            placedStones.Add(new Stone(x, y, turnCount % 2));
         }
 
         // 置かれた石の描画
