@@ -11,13 +11,13 @@ namespace MiriShiraIgo1
     {
         static void Main(String[] args)
         {
+            // ウィンドウモードで起動
+            DX.ChangeWindowMode(DX.TRUE);
+
             if (DX.DxLib_Init() == -1)
             {
                 throw new Exception("DxLibの初期化に失敗");
             }
-
-            // ウィンドウモードで起動
-            DX.ChangeWindowMode(DX.TRUE);
 
             // メインループ
             while(DX.CheckHitKey(DX.KEY_INPUT_ESCAPE) != 1){
