@@ -58,9 +58,8 @@ namespace MiriShiraIgo1
                     // ターンを進め
                     turnCount += 1;
                     // 石を置く
-                    int x = GetClickCoordinate().Item1;
-                    int y = GetClickCoordinate().Item2;
-                    PutStone(x, y);
+                    var xy = GetClickCoordinate();
+                    PutStone(xy);
                     // DEBUG
                     Debug.WriteLine("---placed---");
                     Debug.WriteLine(placedStones.ToString());
@@ -143,6 +142,14 @@ namespace MiriShiraIgo1
         private void PutStone(int x, int y)
         {
             placedStones.Add(new Stone(x, y, turnCount % 2));
+        }
+        /// <summary>
+        /// 指定の座標に石を置く
+        /// </summary>
+        /// <param name="xy">Tuple(x,y)</param>
+        private void PutStone(Tuple<int, int> xy)
+        {
+            PutStone(xy.Item1, xy.Item2);
         }
 
         // 置かれた石の描画
