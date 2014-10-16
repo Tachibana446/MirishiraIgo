@@ -10,8 +10,10 @@ namespace MiriShiraIgo1
 {
     class Game
     {
-        static int boardSize = 480;
-        static int cellSize = boardSize / 16;
+        public const int boardSize = 480;
+        public const int cellSize = boardSize / 16;
+
+        private List<Playable> players = new List<Playable>();
         // クリックの履歴
         static bool click = false;
         // 置かれた石たち
@@ -24,6 +26,8 @@ namespace MiriShiraIgo1
         public Game()
         {
             turnCount = 0;
+            players.Add(new Player("ore"));
+            players.Add(new Player("omae"));
         }
 
         public void Main()
@@ -56,7 +60,7 @@ namespace MiriShiraIgo1
                 if (IsLeftClick())
                 {
                     // 石が置ければ
-                    var xy = GetClickCoordinate();
+                    var xy = players[turnCount % 2].Select();
                     if (CanPutStone(xy))
                     {
                         // ターンを進め石を置く
