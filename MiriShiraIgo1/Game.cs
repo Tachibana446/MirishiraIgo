@@ -66,6 +66,8 @@ namespace MiriShiraIgo1
                         // ターンを進め石を置く
                         turnCount += 1;
                         PutStone(xy);
+                        //DEBUG
+                        Debug.WriteLine("===== "+turnCount.ToString() + " =====");
                     }
                     else
                     {
@@ -79,7 +81,6 @@ namespace MiriShiraIgo1
                     // DEBUG
                     Debug.WriteLine("---dead---");
                     Debug.WriteLine(deadStones.ToString());
-                    Debug.WriteLine("----------");
                 }
 
                 // 石の描画
