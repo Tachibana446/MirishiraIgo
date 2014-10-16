@@ -363,16 +363,20 @@ namespace MiriShiraIgo1
             var myStones = alives.ToLookUpByTurn()[turn % 2].ToList();
             // 相手の石 = 全体 - 自分の石
             var opponetStones = alives.Except(new StoneBox(myStones));
+            // 今回死んだ石
+            var deads = new List<Stone>();
             foreach (var stone in opponetStones)
             {
                 if (!StoneAlive(stone))
                 {
-                    deadStones.Add(stone);
+                    deads.Add(stone);
                     // 盤面をクリーンにする
                     DrawBoard();
                     Debug.WriteLine("<<DEAD!" + stone.x.ToString() + "," + stone.y.ToString() + ">>");
                 }
             }
+            deadStones.AddRange(deads);
+            deads = new List<Stone>();
             // もう一度生存している石を取得して再度判定
             alives = new StoneBox(placedStones.Except(deadStones));
             foreach (var stone in alives.getStones())
@@ -380,12 +384,13 @@ namespace MiriShiraIgo1
                 if (!StoneAlive(stone))
                 {
                     // 死亡者リストに登録
-                    deadStones.Add(stone);
+                    deads.Add(stone);
                     // 盤面をクリーンにする
                     DrawBoard();
                     Debug.WriteLine("<<DEAD!" + stone.x.ToString() + "," + stone.y.ToString() + ">>");
                 }
             }
+            deadStones.AddRange(deads);
         }
 
         private void Judge()
