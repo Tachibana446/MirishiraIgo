@@ -30,6 +30,9 @@ namespace MiriShiraIgo1
             // 石をおいた場所の記録
             var stones = new List<Tuple<int, int>>();
 
+            // 盤面の表示
+            DrawBoard();
+
             // メインループ
             while(DX.CheckHitKey(DX.KEY_INPUT_ESCAPE) != 1){
                 // メッセージループ
@@ -38,10 +41,6 @@ namespace MiriShiraIgo1
                 }
 
                 // 主処理
-
-
-                // 盤面の表示
-                DrawBoard();
                 
                 // 石を置く
 
