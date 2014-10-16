@@ -71,7 +71,7 @@ namespace MiriShiraIgo1
                     Debug.WriteLine("---placed---");
                     Debug.WriteLine(placedStones.ToString());
                     // 石が取れるかの判定
-                    Judge(0);
+                    Judge(turnCount % 2);
                     // DEBUG
                     Debug.WriteLine("---dead---");
                     Debug.WriteLine(deadStones.ToString());
@@ -147,7 +147,7 @@ namespace MiriShiraIgo1
         /// <param name="x"></param>
         /// <param name="y"></param>
         /// <returns></returns>
-        private bool CanPutStone(int x, int y, int turn)
+        private bool CanPutStone(int x, int y)
         {
             var alives = new StoneBox(placedStones.Except(deadStones));
             if (alives.getStoneFromCoordinate(x, y) != null)
@@ -161,7 +161,7 @@ namespace MiriShiraIgo1
             {
                 // ただし相手の石をとれるときは置ける
                 // 自分の石
-                var myStones = alives.ToLookUpByTurn()[turn].ToList();
+                var myStones = alives.ToLookUpByTurn()[(turnCount + 1) % 2].ToList();
                 // 相手の石
                 var opponentStones = alives.Except(myStones);
                 foreach (var stone in opponentStones)
@@ -182,7 +182,7 @@ namespace MiriShiraIgo1
         /// <returns></returns>
         private bool CanPutStone(Tuple<int, int> xy)
         {
-            return CanPutStone(xy);
+            return CanPutStone(xy.Item1, xy.Item2);
         }
 
         /// <summary>
@@ -342,7 +342,6 @@ namespace MiriShiraIgo1
         /// <summary>
         /// 囲まれた石を取る
         /// どちらのターンによるかで競合した時の優先度が決まる
-        /// ただしその部分はまだない
         /// </summary>
         /// <param name="turn">偶数か奇数か</param>
         private void Judge(int turn)
@@ -355,7 +354,7 @@ namespace MiriShiraIgo1
             Debug.WriteLine(alives.ToString());
             Debug.WriteLine("-----------");
             // 自分の石のリスト
-            var myStones = alives.ToLookUpByTurn()[turn].ToList();
+            var myStones = alives.ToLookUpByTurn()[turn % 2].ToList();
             // 相手の石 = 全体 - 自分の石
             var opponetStones = alives.Except(new StoneBox(myStones));
             foreach (var stone in opponetStones)
