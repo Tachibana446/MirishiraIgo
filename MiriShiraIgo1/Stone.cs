@@ -23,7 +23,7 @@ namespace MiriShiraIgo1
             this.turn = turn;
         }
 
-        public String ToString()
+        public override String ToString()
         {
             return "(" + x.ToString() + "," + y.ToString() + ":" + turn.ToString() + ")";
         }

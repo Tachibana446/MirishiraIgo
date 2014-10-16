@@ -43,6 +43,20 @@ namespace MiriShiraIgo1
 
         }
 
+        public List<Stone> Except(List<Stone> stoneList)
+        {
+            return stones.Except(stoneList).ToList<Stone>();
+        }
+
+        /// <summary>
+        /// もっている石をターンで振り分ける
+        /// </summary>
+        /// <returns></returns>
+        public ILookup<int,Stone> ToLookUpByTurn()
+        {
+            return stones.ToLookup(item => item.turn);
+        }
+
         /// <summary>
         /// 引数の石が含まれているかどうか
         /// </summary>
@@ -92,7 +106,7 @@ namespace MiriShiraIgo1
             return null;
         }
 
-        public String ToString()
+        public override String ToString()
         {
             String str = "";
             foreach (var stone in stones)

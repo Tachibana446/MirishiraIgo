@@ -55,13 +55,17 @@ namespace MiriShiraIgo1
                 // クリックされたら
                 if (IsLeftClick())
                 {
-                    // ターンを進め
-                    turnCount += 1;
-                    // 石が置ければ石を置く
+                    // 石が置ければ
                     var xy = GetClickCoordinate();
                     if (CanPutStone(xy))
                     {
+                        // ターンを進め石を置く
+                        turnCount += 1;
                         PutStone(xy);
+                    }
+                    else
+                    {
+                        Debug.WriteLine("<置けないよ>");
                     }
                     // DEBUG
                     Debug.WriteLine("---placed---");
@@ -143,10 +147,30 @@ namespace MiriShiraIgo1
         /// <param name="x"></param>
         /// <param name="y"></param>
         /// <returns></returns>
-        private bool CanPutStone(int x,int y){
+        private bool CanPutStone(int x, int y, int turn)
+        {
             var alives = new StoneBox(placedStones.Except(deadStones));
             if (alives.getStoneFromCoordinate(x, y) != null)
             {
+                return false;
+            }
+            // おいてみて自殺手ならおけない
+            var nextPlan = new Stone(x, y, (turnCount + 1) % 2);
+            alives.Add(nextPlan);
+            if (!StoneAlive(nextPlan, alives))
+            {
+                // ただし相手の石をとれるときは置ける
+                // 自分の石
+                var myStones = alives.ToLookUpByTurn()[turn].ToList();
+                // 相手の石
+                var opponentStones = alives.Except(myStones);
+                foreach (var stone in opponentStones)
+                {
+                    if (!StoneAlive(stone, alives))
+                    {
+                        return true;
+                    }
+                }
                 return false;
             }
             return true;
@@ -158,7 +182,7 @@ namespace MiriShiraIgo1
         /// <returns></returns>
         private bool CanPutStone(Tuple<int, int> xy)
         {
-            return CanPutStone(xy.Item1, xy.Item2);
+            return CanPutStone(xy);
         }
 
         /// <summary>
@@ -202,20 +226,19 @@ namespace MiriShiraIgo1
         }
 
         /// <summary>
-        /// 石が生きてる判定する。端の石については内部で判定するので引数のフラグは変えなくて良い
+        /// 引数に渡された盤面の、指定された石が生き残るかどうか判定する
         /// </summary>
-        /// <param name="stone">判定する石</param>
-        /// <param name="up">上に石があるか</param>
-        /// <param name="down">下に石があるか</param>
-        /// <param name="left">左に石があるか</param>
-        /// <param name="right">右に石があるか</param>
+        /// <param name="stone">調べたい石</param>
+        /// <param name="alives">現在の盤面</param>
+        /// <param name="up">再帰に用いる</param>
+        /// <param name="down"></param>
+        /// <param name="left"></param>
+        /// <param name="right"></param>
         /// <returns></returns>
-        private bool StoneAlive(Stone stone, bool up = true, bool down = true, bool left = true, bool right = true)
+        private bool StoneAlive(Stone stone, StoneBox alives, bool up = true, bool down = true, bool left = true, bool right = true)
         {
             int x = stone.x;
             int y = stone.y;
-            // 生きてる石
-            StoneBox alives = new StoneBox(placedStones.Except(deadStones));
 
             up &= !(x < 0);
             down &= !(x > 16);
@@ -300,12 +323,67 @@ namespace MiriShiraIgo1
         }
 
         /// <summary>
+        /// 石が生きてる判定する。端の石については内部で判定するので引数のフラグは変えなくて良い
+        /// </summary>
+        /// <param name="stone">判定する石</param>
+        /// <param name="up">上に石があるか</param>
+        /// <param name="down">下に石があるか</param>
+        /// <param name="left">左に石があるか</param>
+        /// <param name="right">右に石があるか</param>
+        /// <returns></returns>
+        private bool StoneAlive(Stone stone, bool up = true, bool down = true, bool left = true, bool right = true)
+        {
+            // 生きてる石
+            StoneBox alives = new StoneBox(placedStones.Except(deadStones));
+            return StoneAlive(stone, alives, up, down, left, right);
+
+        }
+
+        /// <summary>
         /// 囲まれた石を取る
         /// どちらのターンによるかで競合した時の優先度が決まる
         /// ただしその部分はまだない
         /// </summary>
         /// <param name="turn">偶数か奇数か</param>
         private void Judge(int turn)
+        {
+            // 盤面に残っている石
+            StoneBox alives = new StoneBox(placedStones.Except(deadStones));
+
+            // DEBUG
+            Debug.WriteLine("---alive---");
+            Debug.WriteLine(alives.ToString());
+            Debug.WriteLine("-----------");
+            // 自分の石のリスト
+            var myStones = alives.ToLookUpByTurn()[turn].ToList();
+            // 相手の石 = 全体 - 自分の石
+            var opponetStones = alives.Except(new StoneBox(myStones));
+            foreach (var stone in opponetStones)
+            {
+                if (!StoneAlive(stone))
+                {
+                    deadStones.Add(stone);
+                    // 盤面をクリーンにする
+                    DrawBoard();
+                    Debug.WriteLine("<<DEAD!" + stone.x.ToString() + "," + stone.y.ToString() + ">>");
+                }
+            }
+            // もう一度生存している石を取得して再度判定
+            alives = new StoneBox(placedStones.Except(deadStones));
+            foreach (var stone in alives.getStones())
+            {
+                if (!StoneAlive(stone))
+                {
+                    // 死亡者リストに登録
+                    deadStones.Add(stone);
+                    // 盤面をクリーンにする
+                    DrawBoard();
+                    Debug.WriteLine("<<DEAD!" + stone.x.ToString() + "," + stone.y.ToString() + ">>");
+                }
+            }
+        }
+
+        private void Judge()
         {
             // 盤面に残っている石
             StoneBox alives = new StoneBox(placedStones.Except(deadStones));
