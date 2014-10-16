@@ -115,5 +115,10 @@ namespace MiriShiraIgo1
             }
             return str;
         }
+
+        internal void AddRange(List<Stone> list)
+        {
+            stones.AddRange(list);
+        }
     }
 }
