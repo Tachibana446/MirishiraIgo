@@ -159,6 +159,12 @@ namespace MiriShiraIgo1
             alives.Add(nextPlan);
             if (!StoneAlive(nextPlan, alives))
             {
+                // 直前の自分が置いた場所にも置けない
+                if (placedStones.getStones()[placedStones.getStones().Count - 2].Equals(nextPlan))
+                {
+                    return false;
+                }
+
                 // ただし相手の石をとれるときは置ける
                 // 自分の石
                 var myStones = alives.ToLookUpByTurn()[(turnCount + 1) % 2].ToList();

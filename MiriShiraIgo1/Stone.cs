@@ -28,5 +28,9 @@ namespace MiriShiraIgo1
             return "(" + x.ToString() + "," + y.ToString() + ":" + turn.ToString() + ")";
         }
 
+        public bool Equals(Stone other)
+        {
+            return (x== other.x && y == other.y && turn == other.turn);
+        }
     }
 }
