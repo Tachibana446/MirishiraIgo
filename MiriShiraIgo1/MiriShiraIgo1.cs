@@ -16,6 +16,9 @@ namespace MiriShiraIgo1
                 throw new Exception("DxLibの初期化に失敗");
             }
 
+            // ウィンドウモードで起動
+            DX.ChangeWindowMode(DX.TRUE);
+
             // メインループ
             while(DX.CheckHitKey(DX.KEY_INPUT_ESCAPE) != 1){
                 // メッセージループ
@@ -25,7 +28,18 @@ namespace MiriShiraIgo1
 
                 // 主処理
 
+                int boardSize = 480;
+
                 // 盤面の表示
+                DX.DrawBox(0, 0, boardSize+1, boardSize+1, DX.GetColor(255, 204, 51), DX.TRUE);
+                int cellSize = boardSize / 16;
+                for (int i = 0; i < 16; i++)
+                {
+                    // 縦線の描画
+                    DX.DrawLine(cellSize * i, 0, cellSize * i, boardSize, DX.GetColor(0, 0, 0));
+                    // 横線の描画
+                    DX.DrawLine(0, cellSize * i, boardSize, cellSize * i, DX.GetColor(0, 0, 0));
+                }
             }
 
             DX.DxLib_End();
