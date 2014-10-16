@@ -39,6 +39,12 @@ namespace MiriShiraIgo1
                     DX.DrawLine(cellSize * i, 0, cellSize * i, boardSize, DX.GetColor(0, 0, 0));
                     // 横線の描画
                     DX.DrawLine(0, cellSize * i, boardSize, cellSize * i, DX.GetColor(0, 0, 0));
+                    // 交差するとこの点の描画
+                    for (int j = 0; j < 16; j++)
+                    {
+                        DX.DrawCircle(cellSize * i, cellSize * j, 2, DX.GetColor(0, 0, 0), DX.TRUE);
+                    }
+                        
                 }
             }
 
