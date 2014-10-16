@@ -52,14 +52,16 @@ namespace MiriShiraIgo1
                 // 主処理
 
                 // 石を置く
-                bool putOn = PutStones();
-
-                // 石が取れるかどうか適当に考える
-                if (putOn)
+                if (IsLeftClick())
                 {
-                    Judge(1);
+                    int x = GetClickCoordinate().Item1;
+                    int y = GetClickCoordinate().Item2;
+                    PutStone(x,y);
+                    // 石が取れるかの判定
+                    Judge(0);
                 }
 
+                // 左クリックしたかどうか
                 // 石の描画
                 DrawStones();
 
@@ -89,6 +91,32 @@ namespace MiriShiraIgo1
                 }
             }
         }
+        /// <summary>
+        /// 今クリックしたかどうかを判定する
+        /// 押しっぱなしの時はfalse
+        /// </summary>
+        /// <returns></returns>
+        private bool IsLeftClick()
+        {
+            return true;
+        }
+        /// <summary>
+        /// クリックした地点の座標を返す
+        /// </summary>
+        private Tuple<int,int> GetClickCoordinate()
+        {
+            return new Tuple<int, int>(0, 0);
+        }
+        /// <summary>
+        /// 指定の座標に石を置く
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        private void PutStone(int x, int y)
+        {
+
+        }
+
 
         // 石を置く処理
         private bool PutStones()
