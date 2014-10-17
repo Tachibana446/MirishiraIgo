@@ -67,7 +67,7 @@ namespace MiriShiraIgo1
                         turnCount += 1;
                         PutStone(xy);
                         //DEBUG
-                        Debug.WriteLine("===== "+turnCount.ToString() + " =====");
+                        Debug.WriteLine("===== " + turnCount.ToString() + " =====");
                     }
                     else
                     {
