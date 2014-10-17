@@ -27,7 +27,7 @@ namespace MiriShiraIgo1
         {
             turnCount = 0;
             players.Add(new Player("ore"));
-            players.Add(new AI_Rand());
+            players.Add(new Player("omae"));
         }
 
         public void Main()
@@ -251,10 +251,10 @@ namespace MiriShiraIgo1
             int x = stone.x;
             int y = stone.y;
 
-            up &= !(x < 0);
-            down &= !(x > 16);
-            left &= !(y < 0);
-            right &= !(y > 16);
+            up &= !(y <= 0);
+            down &= !(y >= 16);
+            left &= !(x <= 0);
+            right &= !(x >= 16);
             // 周囲の調査
             if (up)
             {
