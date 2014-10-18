@@ -16,7 +16,7 @@ namespace MiriShiraIgo1
         {
             // こいつの頭は完全にランダムです
             var blain = new Random();
-            return new Tuple<int, int>(blain.Next(16), blain.Next(16));
+            return new Tuple<int, int>(blain.Next(GameConstants.BoardAxis), blain.Next(GameConstants.BoardAxis));
         }
     }
 }

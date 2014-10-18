@@ -10,8 +10,8 @@ namespace MiriShiraIgo1
 {
     class Game
     {
-        public const int boardSize = 480;
-        public const int cellSize = boardSize / 16;
+        public const int boardSize = GameConstants.BoardSize;
+        public const int cellSize = boardSize / GameConstants.BoardAxis;
 
         private List<Playable> players = new List<Playable>();
         // クリックの履歴
@@ -96,7 +96,7 @@ namespace MiriShiraIgo1
         private void DrawBoard()
         {
             DX.DrawBox(0, 0, boardSize + 1, boardSize + 1, DX.GetColor(255, 204, 51), DX.TRUE);
-            for (int i = 0; i < 16; i++)
+            for (int i = 0; i < GameConstants.BoardAxis; i++)
             {
                 // 縦線の描画
                 DX.DrawLine(cellSize * i, 0, cellSize * i, boardSize, DX.GetColor(0, 0, 0));
@@ -104,9 +104,9 @@ namespace MiriShiraIgo1
                 DX.DrawLine(0, cellSize * i, boardSize, cellSize * i, DX.GetColor(0, 0, 0));
             }
             // 交差するとこの点の描画
-            for (int i = 0; i <= 16; i++)
+            for (int i = 0; i <= GameConstants.BoardAxis; i++)
             {
-                for (int j = 0; j <= 16; j++)
+                for (int j = 0; j <= GameConstants.BoardAxis; j++)
                 {
                     DX.DrawCircle(cellSize * i, cellSize * j, 2, DX.GetColor(0, 0, 0), DX.TRUE);
                 }
@@ -226,11 +226,11 @@ namespace MiriShiraIgo1
                     // あとは先攻後攻で色を変えて描画
                     if (stone.turn == 1)
                     {
-                        DX.DrawCircle(stone.x * cellSize, stone.y * cellSize, 5, DX.GetColor(0, 0, 0), DX.TRUE);
+                        DX.DrawCircle(stone.x * cellSize, stone.y * cellSize, 10, DX.GetColor(0, 0, 0), DX.TRUE);
                     }
                     else
                     {
-                        DX.DrawCircle(stone.x * cellSize, stone.y * cellSize, 5, DX.GetColor(255, 255, 255), DX.TRUE);
+                        DX.DrawCircle(stone.x * cellSize, stone.y * cellSize, 10, DX.GetColor(255, 255, 255), DX.TRUE);
                     }
                 }
             }
@@ -246,15 +246,22 @@ namespace MiriShiraIgo1
         /// <param name="left"></param>
         /// <param name="right"></param>
         /// <returns></returns>
-        private bool StoneAlive(Stone stone, StoneBox alives, bool up = true, bool down = true, bool left = true, bool right = true)
+        private bool StoneAlive(Stone stone, StoneBox alives, bool up = true, bool down = true, bool left = true, bool right = true, List<Stone> already = null)
         {
             int x = stone.x;
             int y = stone.y;
 
+            // すでに探索した石
+            if (already == null)
+            {
+                already = new List<Stone>();
+            }
+            already.Add(stone);
+
             up &= !(y <= 0);
-            down &= !(y >= 16);
+            down &= !(y >= GameConstants.BoardAxis);
             left &= !(x <= 0);
-            right &= !(x >= 16);
+            right &= !(x >= GameConstants.BoardAxis);
             // 周囲の調査
             if (up)
             {
@@ -266,10 +273,11 @@ namespace MiriShiraIgo1
                 }
                 else
                 {
+                    // 調査済みならスキップ
                     // 隣の石が同じ色ならそいつも調査
-                    if (upStone.turn == stone.turn)
+                    if (already.IndexOf(upStone) == -1 && upStone.turn == stone.turn)
                     {
-                        if (StoneAlive(upStone, true, false, true, true))
+                        if (StoneAlive(upStone, true, false, true, true, already))
                         {
                             return true;
                         }
@@ -281,9 +289,9 @@ namespace MiriShiraIgo1
                 Stone downStone = alives.getStoneFromCoordinate(x, y + 1);
                 if (downStone != null)
                 {
-                    if (downStone.turn == stone.turn)
+                    if (already.IndexOf(downStone) == -1 && downStone.turn == stone.turn)
                     {
-                        if (StoneAlive(downStone, false, true, true, true))
+                        if (StoneAlive(downStone, false, true, true, true, already))
                         {
                             return true;
                         }
@@ -299,9 +307,9 @@ namespace MiriShiraIgo1
                 Stone leftStone = alives.getStoneFromCoordinate(x - 1, y);
                 if (leftStone != null)
                 {
-                    if (leftStone.turn == stone.turn)
+                    if (already.IndexOf(leftStone) == -1 && leftStone.turn == stone.turn)
                     {
-                        if (StoneAlive(leftStone, true, true, true, false))
+                        if (StoneAlive(leftStone, true, true, true, false, already))
                         {
                             return true;
                         }
@@ -317,9 +325,9 @@ namespace MiriShiraIgo1
                 Stone rightStone = alives.getStoneFromCoordinate(x + 1, y);
                 if (rightStone != null)
                 {
-                    if (rightStone.turn == stone.turn)
+                    if (already.IndexOf(rightStone) == -1 && rightStone.turn == stone.turn)
                     {
-                        if (StoneAlive(rightStone, true, true, false, true))
+                        if (StoneAlive(rightStone, true, true, false, true, already))
                         {
                             return true;
                         }
@@ -342,11 +350,11 @@ namespace MiriShiraIgo1
         /// <param name="left">左に石があるか</param>
         /// <param name="right">右に石があるか</param>
         /// <returns></returns>
-        private bool StoneAlive(Stone stone, bool up = true, bool down = true, bool left = true, bool right = true)
+        private bool StoneAlive(Stone stone, bool up = true, bool down = true, bool left = true, bool right = true, List<Stone> already = null)
         {
             // 生きてる石
             StoneBox alives = new StoneBox(placedStones.Except(deadStones));
-            return StoneAlive(stone, alives, up, down, left, right);
+            return StoneAlive(stone, alives, up, down, left, right, already);
 
         }
 
