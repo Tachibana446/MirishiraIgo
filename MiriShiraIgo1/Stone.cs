@@ -32,5 +32,28 @@ namespace MiriShiraIgo1
         {
             return (x== other.x && y == other.y && turn == other.turn);
         }
+
+        // 石が端っこかどうか調べる
+        public bool IsTopEnd()
+        {
+            return y <= 0;
+        }
+
+        public bool IsBottomEnd()
+        {
+            return y >= GameConstants.BoardAxis;
+        }
+
+        public bool IsLeftEnd()
+        {
+            return x <= 0;
+        }
+
+        public bool IsRightEnd()
+        {
+            return x >= GameConstants.BoardAxis;
+        }
+
+
     }
 }

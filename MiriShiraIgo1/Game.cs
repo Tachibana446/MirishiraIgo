@@ -23,6 +23,7 @@ namespace MiriShiraIgo1
         // ターン数のカウント
         private int turnCount;
 
+        // コンストラクタ中でプレイヤーを登録する
         public Game()
         {
             turnCount = 0;
@@ -427,6 +428,88 @@ namespace MiriShiraIgo1
             }
         }
 
+        /// <summary>
+        /// 与えられた盤面において、stoneは生き延びることができるか
+        /// </summary>
+        /// <param name="stone"></param>
+        /// <param name="alives"></param>
+        /// <param name="judged"></param>
+        /// <returns></returns>
+        static public bool CanLiving(Stone stone, StoneBox alives, List<Stone> judged = null)
+        {
+            if (judged == null)
+            {
+                judged = new List<Stone>();
+            }
+            judged.Add(stone);
 
+            // 上端でなければ上の石を調査
+            if (!stone.IsTopEnd())
+            {
+                Stone upperStone = alives.getStoneFromCoordinate(stone.x, stone.y - 1);
+                // 上の石が存在しなければ生存
+                if (upperStone == null)
+                {
+                    return true;
+                }
+                // 上の石が調査済みでなければ調査
+                else if (judged.IndexOf(upperStone) != null)
+                {
+                    // 隣の石が味方で、生きていれば自分も生存
+                    if (upperStone.turn == stone.turn && CanLiving(upperStone, alives, judged))
+                    {
+                        return true;
+                    }
+                }
+            }
+            // 下の石を調査
+            if (!stone.IsBottomEnd())
+            {
+                Stone bottomStone = alives.getStoneFromCoordinate(stone.x, stone.y + 1);
+                if (bottomStone == null)
+                {
+                    return true;
+                }
+                else if (judged.IndexOf(bottomStone) != null)
+                {
+                    if (bottomStone.turn == stone.turn && CanLiving(bottomStone, alives, judged))
+                    {
+                        return true;
+                    }
+                }
+            }// 左の石を調査
+            if (!stone.IsLeftEnd())
+            {
+                Stone leftStone = alives.getStoneFromCoordinate(stone.x, stone.y + 1);
+                if (leftStone == null)
+                {
+                    return true;
+                }
+                else if (judged.IndexOf(leftStone) != null)
+                {
+                    if (leftStone.turn == stone.turn && CanLiving(leftStone, alives, judged))
+                    {
+                        return true;
+                    }
+                }
+            }// 右の石を調査
+            if (!stone.IsBottomEnd())
+            {
+                Stone rightStone = alives.getStoneFromCoordinate(stone.x, stone.y + 1);
+                if (rightStone == null)
+                {
+                    return true;
+                }
+                else if (judged.IndexOf(rightStone) != null)
+                {
+                    if (rightStone.turn == stone.turn && CanLiving(rightStone, alives, judged))
+                    {
+                        return true;
+                    }
+                }
+            }
+            // 周りの石がすべて敵の色であれば死ぬ
+            return false;
+        }
     }
 }
