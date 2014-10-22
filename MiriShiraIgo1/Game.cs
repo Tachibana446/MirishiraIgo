@@ -163,7 +163,7 @@ namespace MiriShiraIgo1
             // おいてみて自殺手ならおけない
             var nextPlan = new Stone(x, y, (turnCount + 1) % 2);
             alives.Add(nextPlan);
-            if (!StoneAlive(nextPlan, alives))
+            if (!CanLiving(nextPlan, alives))
             {
                 // 直前の自分が置いた場所にも置けない
                 if (placedStones.getStones()[placedStones.getStones().Count - 2].Equals(nextPlan))
@@ -178,7 +178,7 @@ namespace MiriShiraIgo1
                 var opponentStones = alives.Except(myStones);
                 foreach (var stone in opponentStones)
                 {
-                    if (!StoneAlive(stone, alives))
+                    if (!CanLiving(stone, alives))
                     {
                         return true;
                     }
@@ -379,9 +379,10 @@ namespace MiriShiraIgo1
             var opponetStones = alives.Except(new StoneBox(myStones));
             // 今回死んだ石
             var deads = new List<Stone>();
+            // 相手の石から判定していく
             foreach (var stone in opponetStones)
             {
-                if (!StoneAlive(stone))
+                if (!CanLiving(stone, alives))
                 {
                     deads.Add(stone);
                     // 盤面をクリーンにする
@@ -395,7 +396,7 @@ namespace MiriShiraIgo1
             alives = new StoneBox(placedStones.Except(deadStones));
             foreach (var stone in alives.getStones())
             {
-                if (!StoneAlive(stone))
+                if (!CanLiving(stone, alives))
                 {
                     // 死亡者リストに登録
                     deads.Add(stone);
@@ -417,7 +418,7 @@ namespace MiriShiraIgo1
             Debug.WriteLine("-----------");
             foreach (var stone in alives.getStones())
             {
-                if (!StoneAlive(stone))
+                if (!CanLiving(stone, alives))
                 {
                     // 死亡者リストに登録
                     deadStones.Add(stone);
@@ -453,7 +454,7 @@ namespace MiriShiraIgo1
                     return true;
                 }
                 // 上の石が調査済みでなければ調査
-                else if (judged.IndexOf(upperStone) != null)
+                else if (judged.IndexOf(upperStone) == -1)
                 {
                     // 隣の石が味方で、生きていれば自分も生存
                     if (upperStone.turn == stone.turn && CanLiving(upperStone, alives, judged))
@@ -470,7 +471,7 @@ namespace MiriShiraIgo1
                 {
                     return true;
                 }
-                else if (judged.IndexOf(bottomStone) != null)
+                else if (judged.IndexOf(bottomStone) == -1)
                 {
                     if (bottomStone.turn == stone.turn && CanLiving(bottomStone, alives, judged))
                     {
@@ -480,12 +481,12 @@ namespace MiriShiraIgo1
             }// 左の石を調査
             if (!stone.IsLeftEnd())
             {
-                Stone leftStone = alives.getStoneFromCoordinate(stone.x, stone.y + 1);
+                Stone leftStone = alives.getStoneFromCoordinate(stone.x - 1, stone.y);
                 if (leftStone == null)
                 {
                     return true;
                 }
-                else if (judged.IndexOf(leftStone) != null)
+                else if (judged.IndexOf(leftStone) == -1)
                 {
                     if (leftStone.turn == stone.turn && CanLiving(leftStone, alives, judged))
                     {
@@ -495,12 +496,12 @@ namespace MiriShiraIgo1
             }// 右の石を調査
             if (!stone.IsBottomEnd())
             {
-                Stone rightStone = alives.getStoneFromCoordinate(stone.x, stone.y + 1);
+                Stone rightStone = alives.getStoneFromCoordinate(stone.x + 1, stone.y);
                 if (rightStone == null)
                 {
                     return true;
                 }
-                else if (judged.IndexOf(rightStone) != null)
+                else if (judged.IndexOf(rightStone) == -1)
                 {
                     if (rightStone.turn == stone.turn && CanLiving(rightStone, alives, judged))
                     {
