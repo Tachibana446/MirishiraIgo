@@ -20,6 +20,8 @@ namespace MiriShiraIgo1
         StoneBox placedStones = new StoneBox();
         // 取られた石たち
         StoneBox deadStones = new StoneBox();
+        // 各ターンに死んだ石
+        List<List<Stone>> deadLog = new List<List<Stone>>();
         // ターン数のカウント
         private int turnCount;
 
@@ -69,19 +71,19 @@ namespace MiriShiraIgo1
                         PutStone(xy);
                         //DEBUG
                         Debug.WriteLine("===== " + turnCount.ToString() + " =====");
+                        // DEBUG
+                        Debug.WriteLine("---placed---");
+                        Debug.WriteLine(placedStones.ToString());
+                        // 石が取れるかの判定
+                        Judge(turnCount % 2);
+                        // DEBUG
+                        Debug.WriteLine("---dead---");
+                        Debug.WriteLine(deadStones.ToString());
                     }
                     else
                     {
                         Debug.WriteLine("<置けないよ>");
                     }
-                    // DEBUG
-                    Debug.WriteLine("---placed---");
-                    Debug.WriteLine(placedStones.ToString());
-                    // 石が取れるかの判定
-                    Judge(turnCount % 2);
-                    // DEBUG
-                    Debug.WriteLine("---dead---");
-                    Debug.WriteLine(deadStones.ToString());
                 }
 
                 // 石の描画
@@ -165,13 +167,7 @@ namespace MiriShiraIgo1
             alives.Add(nextPlan);
             if (!CanLiving(nextPlan, alives))
             {
-                // 直前の自分が置いた場所にも置けない
-                if (placedStones.getStones()[placedStones.getStones().Count - 2].Equals(nextPlan))
-                {
-                    return false;
-                }
-
-                // ただし相手の石をとれるときは置ける
+                // 自殺手でも相手の石をとれるときは置ける
                 // 自分の石
                 var myStones = alives.ToLookUpByTurn()[(turnCount + 1) % 2].ToList();
                 // 相手の石
@@ -180,13 +176,51 @@ namespace MiriShiraIgo1
                 {
                     if (!CanLiving(stone, alives))
                     {
-                        return true;
+                        // 劫でなければ置ける
+                        return !IsKou(nextPlan, new StoneBox(placedStones.Except(deadStones)), turnCount);
                     }
                 }
                 return false;
             }
             return true;
         }
+
+        /// <summary>
+        /// そこに置くと劫のルールに違反するか調べる
+        /// 一つ前のターンで死んだ自分の石の場所に置こうとした時、
+        /// 直前のターンで相手が置いた石を取ることが出来るときは劫とみなす
+        /// </summary>
+        /// <param name="plan">置きたい手</param>
+        /// <param name="alives">現状の盤面</param>
+        /// <param name="nowTurn">ターン数</param>
+        /// <returns></returns>
+        private bool IsKou(Stone plan, StoneBox alives, int nowTurn)
+        {
+            // 一つ前のターンで死んだ自分の石か
+            bool isPrevStone = false;
+            foreach (var deadStone in deadLog[nowTurn - 1])
+            {
+                if (deadStone.turn == plan.turn)
+                {
+                    isPrevStone = true;
+                }
+            }
+            if (isPrevStone)
+            {
+                StoneBox nextAlives = alives;
+                nextAlives.Add(plan);
+                // そこに置くと直前の相手の石が取れるのか
+                var lastOppStone = placedStones.getStones().Last();
+                if (!CanLiving(lastOppStone, nextAlives))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+
+        }
+
         /// <summary>
         /// 引数の座標に石が置けるか判定する
         /// </summary>
@@ -391,6 +425,7 @@ namespace MiriShiraIgo1
                 }
             }
             deadStones.AddRange(deads);
+            var nowDeads = deads;
             deads = new List<Stone>();
             // もう一度生存している石を取得して再度判定
             alives = new StoneBox(placedStones.Except(deadStones));
@@ -405,28 +440,10 @@ namespace MiriShiraIgo1
                     Debug.WriteLine("<<DEAD!" + stone.x.ToString() + "," + stone.y.ToString() + ">>");
                 }
             }
+            // TODO:劫を調べるために各ターンの死者リストを作っているが気持ち悪いので早急に治す
+            nowDeads.AddRange(deads);
+            deadLog.Add(nowDeads);
             deadStones.AddRange(deads);
-        }
-
-        private void Judge()
-        {
-            // 盤面に残っている石
-            StoneBox alives = new StoneBox(placedStones.Except(deadStones));
-            // DEBUG
-            Debug.WriteLine("---alive---");
-            Debug.WriteLine(alives.ToString());
-            Debug.WriteLine("-----------");
-            foreach (var stone in alives.getStones())
-            {
-                if (!CanLiving(stone, alives))
-                {
-                    // 死亡者リストに登録
-                    deadStones.Add(stone);
-                    // 盤面をクリーンにする
-                    DrawBoard();
-                    Debug.WriteLine("<<DEAD!" + stone.x.ToString() + "," + stone.y.ToString() + ">>");
-                }
-            }
         }
 
         /// <summary>
@@ -512,5 +529,6 @@ namespace MiriShiraIgo1
             // 周りの石がすべて敵の色であれば死ぬ
             return false;
         }
+
     }
 }
