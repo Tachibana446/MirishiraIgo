@@ -88,6 +88,8 @@ namespace MiriShiraIgo1
 
                 // 石の描画
                 DrawStones();
+                // カーソル位置の描画
+                DrawCursorCoordinate();
 
                 // 裏画面の反転
                 DX.ScreenFlip();
@@ -269,6 +271,17 @@ namespace MiriShiraIgo1
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// 今マウスカーソルがどの座標を指しているのか描画する
+        /// </summary>
+        private void DrawCursorCoordinate()
+        {
+            DX.DrawBox(GameConstants.BoardSize + 10, 10, GameConstants.BoardSize + 100, 30, DX.GetColor(0, 0, 0), DX.TRUE);
+            var coordinate = GetClickCoordinate();
+            String text = "(" + coordinate.Item1.ToString() + "," + coordinate.Item2.ToString() + ")";
+            DX.DrawString(GameConstants.BoardSize + 10, 10, text, DX.GetColor(0, 255, 0));
         }
 
         /// <summary>
